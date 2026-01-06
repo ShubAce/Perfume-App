@@ -3,12 +3,32 @@
 import { signUp } from "@/app/actions/auth";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Toaster, toast } from "sonner";
 
 export default function SignupPage() {
+	const searchParams = useSearchParams();
 	const [error, setError] = useState<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [passwordStrength, setPasswordStrength] = useState(0);
+
+	// Get callback URL from query params or sessionStorage
+	const [callbackUrl, setCallbackUrl] = useState<string>("/");
+
+	useEffect(() => {
+		// Priority: query param > sessionStorage > default
+		const queryCallback = searchParams.get("callbackUrl");
+		const storedCallback = typeof window !== "undefined" ? sessionStorage.getItem("authCallbackUrl") : null;
+
+		if (queryCallback) {
+			setCallbackUrl(queryCallback);
+			// Store it for persistence through signup flow
+			sessionStorage.setItem("authCallbackUrl", queryCallback);
+		} else if (storedCallback) {
+			setCallbackUrl(storedCallback);
+		}
+	}, [searchParams]);
 
 	function checkPasswordStrength(password: string) {
 		let strength = 0;
@@ -19,13 +39,56 @@ export default function SignupPage() {
 		return strength;
 	}
 
-	async function handleSubmit(formData: FormData) {
-		const result = await signUp(formData);
-		if (result?.error) {
-			setError(result.error);
-			toast.error(result.error);
-		} else {
-			toast.success("Account created successfully! Redirecting...");
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+
+		// Prevent double submission
+		if (isSubmitting) return;
+
+		setIsSubmitting(true);
+		setError(null);
+
+		// Show loading toast with ID for proper lifecycle management
+		const loadingToastId = toast.loading("Creating your account...");
+
+		try {
+			const formData = new FormData(e.currentTarget);
+			// Add callback URL to form data for server action
+			formData.append("callbackUrl", callbackUrl);
+
+			const result = await signUp(formData);
+
+			// If we get here with an error, show it
+			if (result?.error) {
+				toast.dismiss(loadingToastId);
+				setError(result.error);
+				toast.error(result.error);
+				setIsSubmitting(false);
+				return;
+			}
+
+			// Success case - clear stored callback and show success
+			// Note: signUp will redirect, so this code may not execute
+			sessionStorage.removeItem("authCallbackUrl");
+			toast.dismiss(loadingToastId);
+			toast.success("Welcome! Your account has been created 🎉");
+		} catch (err) {
+			// NextAuth redirect throws an error - this is expected on success
+			const message = (err as Error).message;
+			if (message.includes("NEXT_REDIRECT")) {
+				// This is actually success - the redirect is happening
+				sessionStorage.removeItem("authCallbackUrl");
+				toast.dismiss(loadingToastId);
+				toast.success("Welcome! You're now logged in 🎉");
+				return;
+			}
+
+			// Actual error
+			toast.dismiss(loadingToastId);
+			const errorMsg = "Something went wrong. Please try again.";
+			setError(errorMsg);
+			toast.error(errorMsg);
+			setIsSubmitting(false);
 		}
 	}
 
@@ -65,12 +128,12 @@ export default function SignupPage() {
 						<div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
 							<form
 								className="space-y-5"
-								action={handleSubmit}
+								onSubmit={handleSubmit}
 							>
 								{error && (
 									<div className="bg-red-50 border border-red-200 text-red-600 text-sm p-4 rounded-lg flex items-start">
 										<svg
-											className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+											className="w-5 h-5 mr-2 shrink-0 mt-0.5"
 											fill="currentColor"
 											viewBox="0 0 20 20"
 										>
@@ -112,7 +175,8 @@ export default function SignupPage() {
 											name="name"
 											type="text"
 											required
-											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400"
+											disabled={isSubmitting}
+											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
 											placeholder="Enter your full name"
 										/>
 									</div>
@@ -146,7 +210,8 @@ export default function SignupPage() {
 											name="email"
 											type="email"
 											required
-											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400"
+											disabled={isSubmitting}
+											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
 											placeholder="you@example.com"
 										/>
 									</div>
@@ -180,8 +245,9 @@ export default function SignupPage() {
 											name="password"
 											type="password"
 											required
+											disabled={isSubmitting}
 											onChange={(e) => setPasswordStrength(checkPasswordStrength(e.target.value))}
-											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400"
+											className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all text-gray-900 placeholder-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
 											placeholder="Create a strong password"
 										/>
 									</div>
@@ -217,22 +283,50 @@ export default function SignupPage() {
 
 								<button
 									type="submit"
-									className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+									disabled={isSubmitting}
+									className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
 								>
-									<svg
-										className="w-5 h-5 mr-2"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M5 13l4 4L19 7"
-										/>
-									</svg>
-									Create Account
+									{isSubmitting ? (
+										<>
+											<svg
+												className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<circle
+													className="opacity-25"
+													cx="12"
+													cy="12"
+													r="10"
+													stroke="currentColor"
+													strokeWidth="4"
+												/>
+												<path
+													className="opacity-75"
+													fill="currentColor"
+													d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+												/>
+											</svg>
+											Creating Account...
+										</>
+									) : (
+										<>
+											<svg
+												className="w-5 h-5 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M5 13l4 4L19 7"
+												/>
+											</svg>
+											Create Account
+										</>
+									)}
 								</button>
 							</form>
 
@@ -248,7 +342,7 @@ export default function SignupPage() {
 
 								<div className="mt-6 text-center">
 									<Link
-										href="/login"
+										href={`/login${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
 										className="text-sm font-semibold text-black hover:text-gray-700 transition-colors inline-flex items-center"
 									>
 										Sign in to your account
@@ -269,8 +363,6 @@ export default function SignupPage() {
 								</div>
 							</div>
 						</div>
-
-						
 					</div>
 				</div>
 			</div>

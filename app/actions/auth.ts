@@ -5,21 +5,31 @@ import { db } from "@/src/index";
 import { users } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
 
-export async function loginWithGoogle() {
-	await signIn("google", { redirectTo: "/" });
+/**
+ * Login with Google OAuth
+ * @param callbackUrl - URL to redirect after successful login
+ */
+export async function loginWithGoogle(callbackUrl?: string) {
+	const redirectTo = callbackUrl || "/";
+	await signIn("google", { redirectTo });
 }
 
+/**
+ * Login with email/password credentials
+ * @param formData - Form data containing email, password, and optional callbackUrl
+ */
 export async function loginWithCredentials(formData: FormData) {
 	const email = formData.get("email") as string;
 	const password = formData.get("password") as string;
+	const callbackUrl = formData.get("callbackUrl") as string;
+	const redirectTo = callbackUrl || "/";
 
 	try {
 		await signIn("credentials", {
 			email,
 			password,
-			redirectTo: "/",
+			redirectTo,
 		});
 	} catch (error) {
 		// NextAuth throws a redirect error that we must re-throw
@@ -34,10 +44,17 @@ export async function logout() {
 	await signOut({ redirectTo: "/" });
 }
 
+/**
+ * Sign up a new user and automatically log them in
+ * @param formData - Form data containing name, email, password, and optional callbackUrl
+ * @returns Error object if failed, otherwise redirects to callbackUrl
+ */
 export async function signUp(formData: FormData) {
 	const name = formData.get("name") as string;
 	const email = formData.get("email") as string;
 	const password = formData.get("password") as string;
+	const callbackUrl = formData.get("callbackUrl") as string;
+	const redirectTo = callbackUrl || "/";
 
 	if (!name || !email || !password) {
 		return { error: "All fields are required" };
@@ -63,6 +80,20 @@ export async function signUp(formData: FormData) {
 		role: "customer",
 	});
 
-	// 4. Redirect to Login (so they can sign in with their new account)
-	redirect("/login");
+	// 4. Auto-login: Sign in the user immediately after account creation
+	// This creates the session and sets auth cookies automatically
+	try {
+		await signIn("credentials", {
+			email,
+			password,
+			redirectTo,
+		});
+	} catch (error) {
+		// NextAuth throws a redirect error on success - this is expected
+		if ((error as Error).message.includes("NEXT_REDIRECT")) {
+			throw error;
+		}
+		// If sign-in fails after signup, return error (shouldn't happen normally)
+		return { error: "Account created but login failed. Please sign in manually." };
+	}
 }

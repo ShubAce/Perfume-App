@@ -157,3 +157,100 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 		references: [products.id],
 	}),
 }));
+
+// --- 9. ADDRESSES TABLE ---
+export const addresses = pgTable("addresses", {
+	id: serial("id").primaryKey(),
+	userId: integer("user_id")
+		.references(() => users.id, { onDelete: "cascade" })
+		.notNull(),
+	label: text("label").default("Home"), // Home, Work, etc.
+	fullName: text("full_name").notNull(),
+	phone: text("phone"),
+	addressLine1: text("address_line_1").notNull(),
+	addressLine2: text("address_line_2"),
+	city: text("city").notNull(),
+	state: text("state").notNull(),
+	postalCode: text("postal_code").notNull(),
+	country: text("country").notNull().default("USA"),
+	isDefault: boolean("is_default").default(false),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const addressesRelations = relations(addresses, ({ one }) => ({
+	user: one(users, {
+		fields: [addresses.userId],
+		references: [users.id],
+	}),
+}));
+
+// --- 10. WISHLIST TABLE ---
+export const wishlistItems = pgTable("wishlist_items", {
+	id: serial("id").primaryKey(),
+	userId: integer("user_id")
+		.references(() => users.id, { onDelete: "cascade" })
+		.notNull(),
+	productId: integer("product_id")
+		.references(() => products.id, { onDelete: "cascade" })
+		.notNull(),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const wishlistItemsRelations = relations(wishlistItems, ({ one }) => ({
+	user: one(users, {
+		fields: [wishlistItems.userId],
+		references: [users.id],
+	}),
+	product: one(products, {
+		fields: [wishlistItems.productId],
+		references: [products.id],
+	}),
+}));
+
+// --- 11. USER PREFERENCES TABLE ---
+export const userPreferences = pgTable("user_preferences", {
+	id: serial("id").primaryKey(),
+	userId: integer("user_id")
+		.references(() => users.id, { onDelete: "cascade" })
+		.notNull()
+		.unique(),
+	preferredScentFamilies: json("preferred_scent_families"), // ["citrus", "woody", "floral"]
+	favoriteBrands: json("favorite_brands"), // ["Chanel", "Dior"]
+	preferredOccasions: json("preferred_occasions"), // ["daily", "evening", "special"]
+	preferredMoods: json("preferred_moods"), // ["fresh", "romantic", "bold"]
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const userPreferencesRelations = relations(userPreferences, ({ one }) => ({
+	user: one(users, {
+		fields: [userPreferences.userId],
+		references: [users.id],
+	}),
+}));
+
+// --- 12. PASSWORD RESET TOKENS TABLE ---
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+	id: serial("id").primaryKey(),
+	userId: integer("user_id")
+		.references(() => users.id, { onDelete: "cascade" })
+		.notNull(),
+	token: text("token").notNull(),
+	expiresAt: timestamp("expires_at").notNull(),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+	user: one(users, {
+		fields: [passwordResetTokens.userId],
+		references: [users.id],
+	}),
+}));
+
+// Update users relations to include new tables
+export const usersRelationsExtended = relations(users, ({ many, one }) => ({
+	orders: many(orders),
+	addresses: many(addresses),
+	wishlistItems: many(wishlistItems),
+	preferences: one(userPreferences),
+}));

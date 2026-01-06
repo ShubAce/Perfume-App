@@ -1,9 +1,3 @@
-try {
-	require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
-} catch (e) {
-  throw e;
-}
-
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./db/schema";
