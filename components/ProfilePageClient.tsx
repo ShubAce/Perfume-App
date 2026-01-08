@@ -394,12 +394,13 @@ export default function ProfilePageClient({
 														>
 															<div className="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden shrink-0">
 																{item.product?.imageUrl && (
-																	<Image
+																	<OptimizedImage
 																		src={item.product.imageUrl}
 																		alt={item.product.name}
 																		width={64}
 																		height={64}
 																		className="w-full h-full object-cover"
+																		timeout={500}
 																	/>
 																)}
 															</div>
