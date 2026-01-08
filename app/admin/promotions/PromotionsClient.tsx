@@ -7,13 +7,13 @@ import { toast } from "sonner";
 interface Coupon {
 	id: number;
 	code: string;
-	discountType: string | null;
+	discountType: string;
 	discountValue: string;
 	minOrderAmount: string | null;
-	maxUses: number | null;
+	maxDiscountAmount: string | null;
+	usageLimit: number | null;
 	usedCount: number | null;
-	validFrom: Date | null;
-	validUntil: Date | null;
+	expiresAt: Date | null;
 	isActive: boolean | null;
 	createdAt: Date | null;
 }
@@ -35,9 +35,9 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 		discountType: "percentage",
 		discountValue: "",
 		minOrderAmount: "",
-		maxUses: "",
-		validFrom: "",
-		validUntil: "",
+		maxDiscountAmount: "",
+		usageLimit: "",
+		expiresAt: "",
 		isActive: true,
 	});
 
@@ -72,9 +72,9 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 			discountType: "percentage",
 			discountValue: "",
 			minOrderAmount: "",
-			maxUses: "",
-			validFrom: "",
-			validUntil: "",
+			maxDiscountAmount: "",
+			usageLimit: "",
+			expiresAt: "",
 			isActive: true,
 		});
 		setEditingCoupon(null);
@@ -88,9 +88,9 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 				discountType: coupon.discountType || "percentage",
 				discountValue: coupon.discountValue,
 				minOrderAmount: coupon.minOrderAmount || "",
-				maxUses: coupon.maxUses?.toString() || "",
-				validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().split("T")[0] : "",
-				validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().split("T")[0] : "",
+				maxDiscountAmount: coupon.maxDiscountAmount || "",
+				usageLimit: coupon.usageLimit?.toString() || "",
+				expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().split("T")[0] : "",
 				isActive: coupon.isActive ?? true,
 			});
 		} else {
@@ -172,8 +172,8 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 	};
 
 	const isExpired = (coupon: Coupon) => {
-		if (!coupon.validUntil) return false;
-		return new Date(coupon.validUntil) < new Date();
+		if (!coupon.expiresAt) return false;
+		return new Date(coupon.expiresAt) < new Date();
 	};
 
 	return (
@@ -268,14 +268,14 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 								<div className="flex items-center gap-2 text-sm text-gray-500">
 									<Calendar className="h-4 w-4" />
 									<span>
-										{coupon.validFrom ? new Date(coupon.validFrom).toLocaleDateString() : "No start"} -{" "}
-										{coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : "No end"}
+										{coupon.createdAt ? new Date(coupon.createdAt).toLocaleDateString() : "No start"} -{" "}
+										{coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString() : "No end"}
 									</span>
 								</div>
 
 								<div className="flex justify-between items-center pt-2 border-t border-gray-100">
 									<span className="text-sm text-gray-500">
-										Used: {coupon.usedCount || 0} / {coupon.maxUses || "∞"}
+										Used: {coupon.usedCount || 0} / {coupon.usageLimit || "∞"}
 									</span>
 									<button
 										onClick={() => toggleActive(coupon)}
@@ -360,34 +360,37 @@ export default function PromotionsClient({ coupons: initialCoupons }: Props) {
 										/>
 									</div>
 									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Max Uses</label>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Max Discount Amount</label>
 										<input
 											type="number"
 											min="0"
-											value={formData.maxUses}
-											onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
+											step="0.01"
+											value={formData.maxDiscountAmount}
+											onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-											placeholder="Unlimited"
+											placeholder="Optional"
 										/>
 									</div>
 								</div>
 
 								<div className="grid grid-cols-2 gap-4">
 									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Valid From</label>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Usage Limit</label>
 										<input
-											type="date"
-											value={formData.validFrom}
-											onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
+											type="number"
+											min="0"
+											value={formData.usageLimit}
+											onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value })}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+											placeholder="Unlimited"
 										/>
 									</div>
 									<div>
-										<label className="block text-sm font-medium text-gray-700 mb-1">Valid Until</label>
+										<label className="block text-sm font-medium text-gray-700 mb-1">Expires At</label>
 										<input
 											type="date"
-											value={formData.validUntil}
-											onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })}
+											value={formData.expiresAt}
+											onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
 											className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
 										/>
 									</div>
