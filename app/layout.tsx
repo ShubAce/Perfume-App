@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "ScentOS",
 	description: "Perfume collection from ScentOS",
-};
+}; 
 
 export default function RootLayout({
 	children,
