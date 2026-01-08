@@ -274,7 +274,7 @@ export default function ProfilePageClient({
 														<p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
 													</div>
 													<div className="text-right">
-														<p className="font-bold">${order.totalAmount}</p>
+														<p className="font-bold">₹{order.totalAmount}</p>
 														<span
 															className={`text-xs px-2 py-1 rounded-full ${
 																order.status === "delivered"
@@ -369,7 +369,7 @@ export default function ProfilePageClient({
 														</p>
 													</div>
 													<div className="text-right">
-														<p className="font-bold text-lg">${order.totalAmount}</p>
+														<p className="font-bold text-lg">₹{order.totalAmount}</p>
 														<span
 															className={`text-xs px-3 py-1 rounded-full ${
 																order.status === "delivered"
@@ -407,7 +407,7 @@ export default function ProfilePageClient({
 																	{item.product?.brand} · Qty: {item.quantity}
 																</p>
 															</div>
-															<p className="font-medium">${item.priceAtPurchase}</p>
+															<p className="font-medium">₹{item.priceAtPurchase}</p>
 														</Link>
 													))}
 												</div>
@@ -463,7 +463,7 @@ export default function ProfilePageClient({
 													</div>
 													<p className="text-xs text-purple-600 font-medium">{item.product.brand}</p>
 													<p className="font-medium line-clamp-1">{item.product.name}</p>
-													<p className="font-bold mt-1">${item.product.price}</p>
+													<p className="font-bold mt-1">₹{item.product.price}</p>
 												</Link>
 												<button
 													onClick={() => removeFromWishlist(item.productId)}

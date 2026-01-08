@@ -353,7 +353,7 @@ export default function CheckoutPage() {
 											<span className="text-gray-600">
 												{item.name} × {item.quantity}
 											</span>
-											<span className="text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+											<span className="text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</span>
 										</div>
 									))}
 								</div>
@@ -376,7 +376,7 @@ export default function CheckoutPage() {
 												Processing...
 											</span>
 										) : (
-											`Place Order • $${total.toFixed(2)}`
+											`Place Order • ₹${total.toFixed(2)}`
 										)}
 									</button>
 								</div>
@@ -392,20 +392,20 @@ export default function CheckoutPage() {
 							<div className="space-y-3">
 								<div className="flex justify-between text-gray-600">
 									<span>Subtotal ({items.reduce((acc, i) => acc + i.quantity, 0)} items)</span>
-									<span>${subtotal.toFixed(2)}</span>
+									<span>₹{subtotal.toFixed(2)}</span>
 								</div>
 								<div className="flex justify-between text-gray-600">
 									<span>Shipping</span>
-									<span>${shipping.toFixed(2)}</span>
+									<span>₹{shipping.toFixed(2)}</span>
 								</div>
 								<div className="flex justify-between text-gray-600">
 									<span>Tax</span>
-									<span>${tax.toFixed(2)}</span>
+									<span>₹{tax.toFixed(2)}</span>
 								</div>
 								<div className="border-t pt-3">
 									<div className="flex justify-between text-lg font-bold text-gray-900">
 										<span>Total</span>
-										<span>${total.toFixed(2)}</span>
+										<span>₹{total.toFixed(2)}</span>
 									</div>
 								</div>
 							</div>

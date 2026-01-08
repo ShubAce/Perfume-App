@@ -146,10 +146,10 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 											<p className="text-sm text-gray-500 mt-1">Quantity: {item.quantity}</p>
 										</div>
 										<div className="text-right">
-											<p className="font-bold text-gray-900">${item.priceAtPurchase}</p>
+											<p className="font-bold text-gray-900">₹{item.priceAtPurchase}</p>
 											{item.quantity > 1 && (
 												<p className="text-sm text-gray-500">
-													${(parseFloat(item.priceAtPurchase) / item.quantity).toFixed(2)} each
+													₹{(parseFloat(item.priceAtPurchase) / item.quantity).toFixed(2)} each
 												</p>
 											)}
 										</div>
@@ -167,15 +167,15 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 							<div className="space-y-3">
 								<div className="flex justify-between text-gray-600">
 									<span>Subtotal</span>
-									<span>${(parseFloat(order.totalAmount) - 10).toFixed(2)}</span>
+									<span>₹{(parseFloat(order.totalAmount) - 10).toFixed(2)}</span>
 								</div>
 								<div className="flex justify-between text-gray-600">
 									<span>Shipping</span>
-									<span>$10.00</span>
+									<span>₹10.00</span>
 								</div>
 								<div className="border-t border-gray-100 pt-3 flex justify-between font-bold text-lg">
 									<span>Total</span>
-									<span className="text-purple-600">${order.totalAmount}</span>
+									<span className="text-purple-600">₹{order.totalAmount}</span>
 								</div>
 							</div>
 						</div>

@@ -28,16 +28,21 @@ export async function getSimilarByNotes(productId: number, notes: ScentNotes | n
 	const allNotes = [...(notes.top || []), ...(notes.middle || []), ...(notes.base || [])];
 	if (allNotes.length === 0) return [];
 
-	// Search for products with similar notes
-	const conditions = allNotes.slice(0, 5).map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
+	try {
+		// Search for products with similar notes
+		const conditions = allNotes.slice(0, 5).map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
 
-	const similar = await db.query.products.findMany({
-		where: and(ne(products.id, productId), or(...conditions)),
-		limit,
-		orderBy: desc(products.isTrending),
-	});
+		const similar = await db.query.products.findMany({
+			where: and(ne(products.id, productId), or(...conditions)),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
 
-	return similar as Product[];
+		return similar as Product[];
+	} catch (error) {
+		console.error("getSimilarByNotes error:", error);
+		return [];
+	}
 }
 
 // Get products from the same brand
@@ -83,15 +88,28 @@ export async function getSeasonalPicks(season: "spring" | "summer" | "fall" | "w
 	};
 
 	const notes = seasonNotes[season];
-	const conditions = notes.map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
 
-	const picks = await db.query.products.findMany({
-		where: or(...conditions),
-		limit,
-		orderBy: desc(products.isTrending),
-	});
+	try {
+		// Use COALESCE to handle NULL values and cast JSON to text for searching
+		const conditions = notes.map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
 
-	return picks as Product[];
+		const picks = await db.query.products.findMany({
+			where: or(...conditions),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+
+		return picks as Product[];
+	} catch (error) {
+		console.error("getSeasonalPicks error:", error);
+		// Fallback: return trending products if query fails
+		const fallbackPicks = await db.query.products.findMany({
+			where: eq(products.isActive, true),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+		return fallbackPicks as Product[];
+	}
 }
 
 // Get mood-based recommendations
@@ -108,15 +126,29 @@ export async function getMoodPicks(mood: string, limit = 6): Promise<Product[]> 
 	};
 
 	const notes = moodNotes[mood.toLowerCase()] || ["fresh"];
-	const conditions = notes.map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
 
-	const picks = await db.query.products.findMany({
-		where: or(...conditions),
-		limit,
-		orderBy: desc(products.isTrending),
-	});
+	try {
+		// Create OR conditions for each scent note
+		// Use COALESCE to handle NULL values and cast JSON to text for searching
+		const conditions = notes.map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
 
-	return picks as Product[];
+		const picks = await db.query.products.findMany({
+			where: or(...conditions),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+
+		return picks as Product[];
+	} catch (error) {
+		console.error("getMoodPicks error:", error);
+		// Fallback: return trending products if query fails
+		const fallbackPicks = await db.query.products.findMany({
+			where: eq(products.isActive, true),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+		return fallbackPicks as Product[];
+	}
 }
 
 // Get occasion-based recommendations
@@ -132,20 +164,31 @@ export async function getOccasionPicks(occasion: string, limit = 6): Promise<Pro
 	};
 
 	const criteria = occasionCriteria[occasion.toLowerCase()] || occasionCriteria.daily;
-	const conditions = criteria.notes.map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
 
-	let whereClause = or(...conditions);
-	if (criteria.concentration) {
-		whereClause = and(whereClause, eq(products.concentration, criteria.concentration));
+	try {
+		const conditions = criteria.notes.map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
+
+		let whereClause = or(...conditions);
+		if (criteria.concentration) {
+			whereClause = and(whereClause, eq(products.concentration, criteria.concentration));
+		}
+
+		const picks = await db.query.products.findMany({
+			where: whereClause,
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+
+		return picks as Product[];
+	} catch (error) {
+		console.error("getOccasionPicks error:", error);
+		const fallbackPicks = await db.query.products.findMany({
+			where: eq(products.isActive, true),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
+		return fallbackPicks as Product[];
 	}
-
-	const picks = await db.query.products.findMany({
-		where: whereClause,
-		limit,
-		orderBy: desc(products.isTrending),
-	});
-
-	return picks as Product[];
 }
 
 // Get price-based alternatives (more affordable)
@@ -153,15 +196,21 @@ export async function getAffordableAlternatives(productId: number, currentPrice:
 	if (!notes) return [];
 
 	const allNotes = [...(notes.top || []), ...(notes.middle || []), ...(notes.base || [])];
-	const noteConditions = allNotes.slice(0, 3).map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
 
-	const alternatives = await db.query.products.findMany({
-		where: and(ne(products.id, productId), sql`${products.price}::numeric < ${currentPrice}`, or(...noteConditions)),
-		limit,
-		orderBy: desc(products.price),
-	});
+	try {
+		const noteConditions = allNotes.slice(0, 3).map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
 
-	return alternatives as Product[];
+		const alternatives = await db.query.products.findMany({
+			where: and(ne(products.id, productId), sql`${products.price}::numeric < ${currentPrice}`, or(...noteConditions)),
+			limit,
+			orderBy: desc(products.price),
+		});
+
+		return alternatives as Product[];
+	} catch (error) {
+		console.error("getAffordableAlternatives error:", error);
+		return [];
+	}
 }
 
 // Get complementary products (pairs well with)
@@ -192,15 +241,20 @@ export async function getComplementaryProducts(productId: number, notes: ScentNo
 	const uniqueComplementary = [...new Set(complementary)].slice(0, 5);
 	if (uniqueComplementary.length === 0) return [];
 
-	const conditions = uniqueComplementary.map((note) => sql`${products.scentNotes}::text ILIKE ${`%${note}%`}`);
+	try {
+		const conditions = uniqueComplementary.map((note) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${note}%`}`);
 
-	const picks = await db.query.products.findMany({
-		where: and(ne(products.id, productId), eq(products.gender, gender), or(...conditions)),
-		limit,
-		orderBy: desc(products.isTrending),
-	});
+		const picks = await db.query.products.findMany({
+			where: and(ne(products.id, productId), eq(products.gender, gender), or(...conditions)),
+			limit,
+			orderBy: desc(products.isTrending),
+		});
 
-	return picks as Product[];
+		return picks as Product[];
+	} catch (error) {
+		console.error("getComplementaryProducts error:", error);
+		return [];
+	}
 }
 
 // Get personalized recommendations based on user preferences
@@ -221,7 +275,7 @@ export async function getPersonalizedPicks(
 
 	// Prefer favorite scent families
 	if (preferences.scentFamilies.length > 0) {
-		conditions.push(or(...preferences.scentFamilies.map((scent) => sql`${products.scentNotes}::text ILIKE ${`%${scent}%`}`)));
+		conditions.push(or(...preferences.scentFamilies.map((scent) => sql`COALESCE(${products.scentNotes}::text, '') ILIKE ${`%${scent}%`}`)));
 	}
 
 	// Exclude already viewed

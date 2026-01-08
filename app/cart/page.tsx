@@ -33,7 +33,7 @@ export default function CartPage() {
 			setLoadingRecs(true);
 			try {
 				const productIds = items.map((i) => i.productId).join(",");
-				const response = await fetch(`/api/recommendations/cart?productIds=${productIds}`);
+				const response = await fetch(`/api/recommendations/cart?productIds=₹{productIds}`);
 				if (response.ok) {
 					const data = await response.json();
 					setRecommendations(data.products || []);
@@ -101,7 +101,7 @@ export default function CartPage() {
 											<div className="flex gap-4 sm:gap-6">
 												{/* Image */}
 												<Link
-													href={`/product/${item.slug}`}
+													href={`/product/₹{item.slug}`}
 													className="relative h-20 w-20 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-gray-100"
 												>
 													{item.imageUrl ? (
@@ -124,7 +124,7 @@ export default function CartPage() {
 																{item.brand}
 															</p>
 															<Link
-																href={`/product/${item.slug}`}
+																href={`/product/₹{item.slug}`}
 																className="block font-semibold text-gray-900 hover:text-purple-600 transition-colors truncate"
 															>
 																{item.name}
@@ -132,7 +132,7 @@ export default function CartPage() {
 															{item.size && <p className="text-sm text-gray-500">{item.size}</p>}
 														</div>
 														<p className="font-bold text-gray-900 sm:text-right">
-															${(item.price * item.quantity).toFixed(2)}
+															₹{(item.price * item.quantity).toFixed(2)}
 														</p>
 													</div>
 
@@ -181,7 +181,7 @@ export default function CartPage() {
 										{recommendations.map((product) => (
 											<Link
 												key={product.id}
-												href={`/product/${product.slug}`}
+												href={`/product/₹{product.slug}`}
 												className="group rounded-xl bg-gray-50 p-3 hover:bg-gray-100 transition-colors"
 											>
 												<div className="relative aspect-square rounded-lg bg-gray-200 overflow-hidden mb-2">
@@ -198,7 +198,7 @@ export default function CartPage() {
 												</div>
 												<p className="text-xs text-purple-600 font-medium">{product.brand}</p>
 												<p className="text-sm font-medium text-gray-900 line-clamp-1">{product.name}</p>
-												<p className="text-sm font-bold text-gray-900 mt-1">${product.price}</p>
+												<p className="text-sm font-bold text-gray-900 mt-1">₹{product.price}</p>
 											</Link>
 										))}
 									</div>
@@ -214,24 +214,24 @@ export default function CartPage() {
 								<div className="space-y-3 border-b border-gray-100 pb-4">
 									<div className="flex justify-between text-sm">
 										<span className="text-gray-600">Subtotal ({itemCount} items)</span>
-										<span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+										<span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
 									</div>
 									<div className="flex justify-between text-sm">
 										<span className="text-gray-600">Shipping</span>
 										{shipping === 0 ? (
 											<span className="font-medium text-green-600">FREE</span>
 										) : (
-											<span className="font-medium text-gray-900">${shipping.toFixed(2)}</span>
+											<span className="font-medium text-gray-900">₹{shipping.toFixed(2)}</span>
 										)}
 									</div>
 									{shipping > 0 && (
-										<p className="text-xs text-gray-500">Add ${(50 - subtotal).toFixed(2)} more for free shipping</p>
+										<p className="text-xs text-gray-500">Add ₹{(50 - subtotal).toFixed(2)} more for free shipping</p>
 									)}
 								</div>
 
 								<div className="flex justify-between py-4 border-b border-gray-100">
 									<span className="font-semibold text-gray-900">Total</span>
-									<span className="font-bold text-xl text-gray-900">${total.toFixed(2)}</span>
+									<span className="font-bold text-xl text-gray-900">₹{total.toFixed(2)}</span>
 								</div>
 
 								<Link

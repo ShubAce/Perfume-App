@@ -201,7 +201,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug?:
 
 						{/* Price & Stock */}
 						<div className="mt-6 flex items-end gap-4">
-							<p className="text-4xl font-bold text-gray-900">${product.price}</p>
+							<p className="text-4xl font-bold text-gray-900">₹{product.price}</p>
 							{product.size && <span className="mb-1 text-sm text-gray-500">/ {product.size}</span>}
 							<span
 								className={`mb-1 ml-auto text-sm font-semibold px-3 py-1 rounded-full ${

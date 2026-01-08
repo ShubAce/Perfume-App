@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/src/index";
-import { orders, orderItems } from "@/src/db/schema";
+import { orders, orderItems, products } from "@/src/db/schema";
+import { eq, sql } from "drizzle-orm";
 
 export async function POST(request: Request) {
 	const session = await auth();
@@ -32,6 +33,16 @@ export async function POST(request: Request) {
 				priceAtPurchase: item.priceAtPurchase.toString(),
 			}))
 		);
+
+		// Reduce inventory for each ordered product
+		for (const item of items) {
+			await db
+				.update(products)
+				.set({
+					stock: sql`${products.stock} - ${item.quantity}`,
+				})
+				.where(eq(products.id, item.productId));
+		}
 
 		// TODO: Save shipping address to user profile or order
 

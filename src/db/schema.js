@@ -47,6 +47,7 @@ export const products = pgTable("products", {
 	slug: text("slug").unique().notNull(), // For URLs like /product/chanel-no-5
 	description: text("description"),
 	price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+	originalPrice: decimal("original_price", { precision: 10, scale: 2 }), // For showing discounts
 	stock: integer("stock").notNull().default(0),
 
 	// Perfume Specific Fields
@@ -55,13 +56,20 @@ export const products = pgTable("products", {
 	size: text("size"), // e.g., '50ml', '100ml'
 
 	// Storing notes as JSON allows flexibility without complex join tables
-	// Example: { top: "Lemon", middle: "Rose", base: "Vanilla" }
+	// Example: { top: ["Lemon"], middle: ["Rose"], base: ["Vanilla"] }
 	scentNotes: json("scent_notes"),
 
 	imageUrl: text("image_url"),
 	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 	gender: text("gender").notNull().default("unisex"), // 'men', 'women', 'unisex'
 	isTrending: boolean("is_trending").default(false),
+	isActive: boolean("is_active").default(true), // Soft delete / disable
+
+	// Additional perfume metadata
+	occasion: json("occasion"), // e.g., ["casual", "evening", "office"]
+	longevity: text("longevity"), // e.g., "6-8 hours"
+	projection: text("projection"), // e.g., "moderate", "heavy", "light"
 });
 
 // --- 3. ORDERS TABLE ---
@@ -243,6 +251,70 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
 	user: one(users, {
 		fields: [passwordResetTokens.userId],
+		references: [users.id],
+	}),
+}));
+
+// --- 13. AUDIT LOGS TABLE (Admin Activity Tracking) ---
+export const auditLogs = pgTable("audit_logs", {
+	id: serial("id").primaryKey(),
+	adminId: integer("admin_id").references(() => users.id),
+	action: text("action").notNull(), // e.g., 'ORDER_STATUS_CHANGE', 'REFUND_ISSUED', 'PRODUCT_UPDATE'
+	entityType: text("entity_type").notNull(), // e.g., 'order', 'product', 'user'
+	entityId: integer("entity_id"), // ID of affected entity
+	details: json("details"), // Additional context as JSON
+	ipAddress: text("ip_address"),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+	admin: one(users, {
+		fields: [auditLogs.adminId],
+		references: [users.id],
+	}),
+}));
+
+// --- 14. COUPONS TABLE ---
+export const coupons = pgTable("coupons", {
+	id: serial("id").primaryKey(),
+	code: text("code").notNull().unique(),
+	discountType: text("discount_type").notNull(), // 'percentage' or 'flat'
+	discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+	minOrderAmount: decimal("min_order_amount", { precision: 10, scale: 2 }),
+	maxDiscountAmount: decimal("max_discount_amount", { precision: 10, scale: 2 }),
+	usageLimit: integer("usage_limit"),
+	usedCount: integer("used_count").default(0),
+	isActive: boolean("is_active").default(true),
+	expiresAt: timestamp("expires_at"),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
+// --- 15. SUPPORT TICKETS TABLE ---
+export const supportTickets = pgTable("support_tickets", {
+	id: serial("id").primaryKey(),
+	userId: integer("user_id").references(() => users.id),
+	orderId: integer("order_id").references(() => orders.id),
+	subject: text("subject").notNull(),
+	description: text("description").notNull(),
+	status: text("status").default("open"), // open, in_progress, resolved, closed
+	priority: text("priority").default("medium"), // low, medium, high, urgent
+	assignedTo: integer("assigned_to").references(() => users.id),
+	adminNotes: text("admin_notes"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const supportTicketsRelations = relations(supportTickets, ({ one }) => ({
+	user: one(users, {
+		fields: [supportTickets.userId],
+		references: [users.id],
+	}),
+	order: one(orders, {
+		fields: [supportTickets.orderId],
+		references: [orders.id],
+	}),
+	assignee: one(users, {
+		fields: [supportTickets.assignedTo],
 		references: [users.id],
 	}),
 }));

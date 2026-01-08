@@ -321,7 +321,7 @@ export default function ShopFilters({ products }: ShopFiltersProps) {
 									</h3>
 								</Link>
 								<div className="flex items-center justify-between">
-									<p className="text-lg font-bold text-gray-900">${product.price}</p>
+									<p className="text-lg font-bold text-gray-900">₹{product.price}</p>
 									{product.concentration && <span className="text-xs text-gray-500">{product.concentration}</span>}
 								</div>
 								{/* Add to Cart Button */}

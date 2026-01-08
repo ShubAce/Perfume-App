@@ -240,7 +240,7 @@ export default function GlobalSearch() {
 														{product.brand} • {product.concentration || "Perfume"}
 													</p>
 												</div>
-												<p className="shrink-0 font-semibold text-gray-900">${product.price}</p>
+												<p className="shrink-0 font-semibold text-gray-900">₹{product.price}</p>
 											</Link>
 										))}
 									</div>

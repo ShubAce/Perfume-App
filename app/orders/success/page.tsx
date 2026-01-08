@@ -1,12 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 function OrderSuccessContent() {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const orderId = searchParams.get("orderId");
+	const [countdown, setCountdown] = useState(5);
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setCountdown((prev) => {
+				if (prev <= 1) {
+					clearInterval(timer);
+					router.push("/");
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+
+		return () => clearInterval(timer);
+	}, [router]);
 
 	return (
 		<div className="min-h-screen bg-linear-to-br from-purple-50 via-pink-50 to-amber-50 flex items-center justify-center py-12 px-4">
@@ -32,6 +49,13 @@ function OrderSuccessContent() {
 					{/* Title */}
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
 					<p className="text-gray-600 mb-6">Thank you for your purchase. Your order has been placed successfully.</p>
+
+					{/* Countdown Timer */}
+					<div className="mb-6">
+						<p className="text-sm text-gray-500">
+							Redirecting to home page in <span className="font-bold text-purple-600">{countdown}</span> seconds...
+						</p>
+					</div>
 
 					{/* Order ID */}
 					{orderId && (
@@ -125,14 +149,20 @@ function OrderSuccessContent() {
 					{/* Action Buttons */}
 					<div className="space-y-3">
 						<Link
-							href="/orders"
+							href="/"
 							className="block w-full py-3 px-4 bg-linear-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
+						>
+							Go to Home Now
+						</Link>
+						<Link
+							href="/orders"
+							className="block w-full py-3 px-4 bg-white border-2 border-purple-200 text-purple-600 font-medium rounded-xl hover:bg-purple-50 transition-all"
 						>
 							View Order History
 						</Link>
 						<Link
 							href="/shop/all"
-							className="block w-full py-3 px-4 bg-white border-2 border-purple-200 text-purple-600 font-medium rounded-xl hover:bg-purple-50 transition-all"
+							className="block w-full py-3 px-4 bg-white border-2 border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-all"
 						>
 							Continue Shopping
 						</Link>

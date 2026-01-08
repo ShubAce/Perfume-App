@@ -30,11 +30,11 @@ interface Filters {
 }
 
 const PRICE_RANGES = [
-	{ label: "Under $50", min: 0, max: 50 },
-	{ label: "$50 - $100", min: 50, max: 100 },
-	{ label: "$100 - $200", min: 100, max: 200 },
-	{ label: "$200 - $300", min: 200, max: 300 },
-	{ label: "$300+", min: 300, max: null },
+	{ label: "Under ₹5000", min: 0, max: 5000 },
+	{ label: "₹5000 - ₹10000", min: 5000, max: 10000 },
+	{ label: "₹10000 - ₹20000", min: 10000, max: 20000 },
+	{ label: "₹20000 - ₹30000", min: 20000, max: 30000 },
+	{ label: "₹30000+", min: 30000, max: null },
 ];
 
 const SORT_OPTIONS = [
@@ -422,7 +422,7 @@ function SearchResultsContent() {
 												{product.concentration && <span className="text-xs text-gray-500">{product.concentration}</span>}
 												<span className="text-xs capitalize text-gray-400">• {product.gender}</span>
 											</div>
-											<p className="mt-3 text-lg font-bold text-gray-900">${product.price}</p>
+											<p className="mt-3 text-lg font-bold text-gray-900">₹{product.price}</p>
 										</div>
 									</Link>
 								))}

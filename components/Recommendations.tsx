@@ -52,7 +52,7 @@ export function ProductCard({ product, showBadge = false, compact = false }: Pro
 					{product.name}
 				</h3>
 				{!compact && product.concentration && <p className="mt-0.5 text-xs text-gray-500">{product.concentration}</p>}
-				<p className={`font-bold text-gray-900 ${compact ? "mt-1 text-sm" : "mt-2 text-lg"}`}>${product.price}</p>
+				<p className={`font-bold text-gray-900 ${compact ? "mt-1 text-sm" : "mt-2 text-lg"}`}>₹{product.price}</p>
 			</div>
 		</Link>
 	);

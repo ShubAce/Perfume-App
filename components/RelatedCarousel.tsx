@@ -92,7 +92,7 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 									</h3>
 									<p className="mt-1 text-xs text-gray-500">{p.brand}</p>
 								</div>
-								<div className="ml-4 text-sm font-semibold text-gray-900">${p.price}</div>
+								<div className="ml-4 text-sm font-semibold text-gray-900">₹{p.price}</div>
 							</div>
 						</div>
 					))}
@@ -141,7 +141,7 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 									</h3>
 									<p className="mt-1 text-xs text-gray-500">{p.brand}</p>
 								</div>
-								<div className="ml-4 text-sm font-semibold text-gray-900">${p.price}</div>
+								<div className="ml-4 text-sm font-semibold text-gray-900">₹{p.price}</div>
 							</div>
 						</div>
 					))}
