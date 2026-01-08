@@ -2,7 +2,7 @@ import { db } from "@/src/index";
 import { products } from "@/src/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { RecommendationSection, SeasonalBanner, MoodCollection } from "@/components/Recommendations";
@@ -25,11 +25,12 @@ function CategoryCard({ title, image, link, subtitle }: { title: string; image: 
 			href={link}
 			className="group relative block h-[400px] overflow-hidden rounded-2xl bg-gray-100"
 		>
-			<Image
+			<OptimizedImage
 				src={image}
 				alt={title}
 				fill
 				className="object-cover transition-transform duration-700 group-hover:scale-110"
+				timeout={500}
 			/>
 			<div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 			<div className="absolute bottom-8 left-8 text-white">
@@ -88,12 +89,13 @@ export default async function EnhancedHome() {
 				{/* 1. HERO SECTION - Enhanced */}
 				<section className="relative h-[85vh] w-full overflow-hidden bg-gray-900">
 					<div className="absolute inset-0">
-						<Image
+						<OptimizedImage
 							src="https://images.unsplash.com/photo-1557170334-a9632e77c6e4?q=80&w=3000&auto=format&fit=crop"
 							alt="Hero Banner"
 							fill
 							className="object-cover opacity-60"
 							priority
+							timeout={500}
 						/>
 						<div className="absolute inset-0 bg-linear-to-r from-black/50 to-transparent" />
 					</div>

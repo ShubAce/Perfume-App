@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 
 type Product = {
@@ -74,14 +74,15 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 							>
 								<div className="relative aspect-square mb-4 overflow-hidden rounded-md bg-gray-100">
 									{p.imageUrl ? (
-										<Image
+										<OptimizedImage
 											src={p.imageUrl}
 											alt={p.name}
 											fill
 											className="object-cover"
+											timeout={500}
 										/>
 									) : (
-										<div className="flex h-full items-center justify-center text-gray-400">Img</div>
+										<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 									)}
 								</div>
 							</Link>
@@ -123,14 +124,15 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 							>
 								<div className="relative pb-[100%] mb-4 overflow-hidden rounded-md bg-gray-100">
 									{p.imageUrl ? (
-										<Image
+										<OptimizedImage
 											src={p.imageUrl}
 											alt={p.name}
 											fill
 											className="object-cover"
+											timeout={500}
 										/>
 									) : (
-										<div className="flex h-full items-center justify-center text-gray-400">Img</div>
+										<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 									)}
 								</div>
 							</Link>

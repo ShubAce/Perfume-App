@@ -4,7 +4,7 @@ import { db } from "@/src/index";
 import { orders } from "@/src/db/schema";
 import { eq, and } from "drizzle-orm";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin } from "lucide-react";
@@ -129,15 +129,16 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
 									>
 										<div className="h-20 w-20 rounded-xl bg-gray-100 overflow-hidden shrink-0">
 											{item.product?.imageUrl ? (
-												<Image
+												<OptimizedImage
 													src={item.product.imageUrl}
 													alt={item.product.name}
 													width={80}
 													height={80}
 													className="w-full h-full object-cover"
+													timeout={500}
 												/>
 											) : (
-												<div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+												<div className="w-full h-full flex items-center justify-center text-4xl">🧴</div>
 											)}
 										</div>
 										<div className="flex-1 min-w-0">

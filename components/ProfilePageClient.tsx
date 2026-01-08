@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
@@ -146,12 +146,13 @@ export default function ProfilePageClient({
 				<div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 					<div className="flex items-center gap-3 sm:gap-4">
 						{session.user.image ? (
-							<Image
+							<OptimizedImage
 								src={session.user.image}
 								alt={session.user.name || "Profile"}
 								width={64}
 								height={64}
 								className="rounded-full ring-4 ring-purple-100 w-12 h-12 sm:w-16 sm:h-16"
+								timeout={500}
 							/>
 						) : (
 							<div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-purple-100 flex items-center justify-center">
@@ -316,12 +317,13 @@ export default function ProfilePageClient({
 												>
 													<div className="aspect-square rounded-lg bg-gray-200 overflow-hidden mb-2">
 														{item.product.imageUrl && (
-															<Image
+															<OptimizedImage
 																src={item.product.imageUrl}
 																alt={item.product.name}
 																width={150}
 																height={150}
 																className="w-full h-full object-cover"
+																timeout={500}
 															/>
 														)}
 													</div>
@@ -452,12 +454,13 @@ export default function ProfilePageClient({
 												<Link href={`/product/${item.product.slug}`}>
 													<div className="aspect-square rounded-xl bg-gray-100 overflow-hidden mb-3">
 														{item.product.imageUrl && (
-															<Image
+															<OptimizedImage
 																src={item.product.imageUrl}
 																alt={item.product.name}
 																width={200}
 																height={200}
 																className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+																timeout={500}
 															/>
 														)}
 													</div>

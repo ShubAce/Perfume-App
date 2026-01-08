@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import AddToCartButton from "@/components/AddToCartButton";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 
@@ -293,12 +293,13 @@ export default function ShopFilters({ products }: ShopFiltersProps) {
 								className="block relative aspect-square overflow-hidden bg-gray-100"
 							>
 								{product.imageUrl ? (
-									<Image
+									<OptimizedImage
 										src={product.imageUrl}
 										alt={product.name}
 										fill
 										className="object-cover group-hover:scale-105 transition-transform duration-500"
 										sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+										timeout={500}
 									/>
 								) : (
 									<div className="absolute inset-0 flex items-center justify-center text-gray-400">

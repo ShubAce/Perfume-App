@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -161,12 +161,13 @@ export default function CheckoutPage() {
 										>
 											<div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
 												{item.imageUrl ? (
-													<Image
+													<OptimizedImage
 														src={item.imageUrl}
 														alt={item.name}
 														width={96}
 														height={96}
 														className="h-full w-full object-cover"
+														timeout={500}
 													/>
 												) : (
 													<div className="h-full w-full flex items-center justify-center text-4xl">🧴</div>

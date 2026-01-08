@@ -2,7 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Minus, Plus, Trash2, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
@@ -105,14 +105,15 @@ export default function CartPage() {
 													className="relative h-20 w-20 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-gray-100"
 												>
 													{item.imageUrl ? (
-														<Image
+														<OptimizedImage
 															src={item.imageUrl}
 															alt={item.name}
 															fill
 															className="object-cover"
+															timeout={500}
 														/>
 													) : (
-														<div className="flex h-full items-center justify-center text-gray-400 text-sm">No Image</div>
+														<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 													)}
 												</Link>
 

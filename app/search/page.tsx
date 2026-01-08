@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { usePersonalization } from "@/context/PersonalizationContext";
@@ -398,14 +398,15 @@ function SearchResultsContent() {
 									>
 										<div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
 											{product.imageUrl ? (
-												<Image
+												<OptimizedImage
 													src={product.imageUrl}
 													alt={product.name}
 													fill
 													className="object-cover transition-transform duration-300 group-hover:scale-105"
+													timeout={500}
 												/>
 											) : (
-												<div className="flex h-full items-center justify-center text-gray-400">No Image</div>
+												<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 											)}
 											{product.isTrending && (
 												<span className="absolute left-2 top-2 rounded-full bg-purple-600 px-2 py-1 text-xs font-bold text-white">

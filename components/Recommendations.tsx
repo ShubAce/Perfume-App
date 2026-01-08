@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface Product {
 	id: number;
@@ -27,14 +27,15 @@ export function ProductCard({ product, showBadge = false, compact = false }: Pro
 		>
 			<div className={`relative overflow-hidden rounded-lg bg-gray-100 ${compact ? "aspect-square" : "aspect-square"}`}>
 				{product.imageUrl ? (
-					<Image
+					<OptimizedImage
 						src={product.imageUrl}
 						alt={product.name}
 						fill
 						className="object-cover transition-transform duration-300 group-hover:scale-105"
+						timeout={500}
 					/>
 				) : (
-					<div className="flex h-full items-center justify-center text-gray-400">No Image</div>
+					<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 				)}
 				{showBadge && product.isTrending && (
 					<span className="absolute left-2 top-2 rounded-full bg-linear-to-r from-purple-600 to-pink-600 px-2 py-0.5 text-xs font-bold text-white">

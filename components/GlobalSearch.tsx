@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, X, TrendingUp, Clock, Sparkles } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useRouter } from "next/navigation";
 import { usePersonalization } from "@/context/PersonalizationContext";
 
@@ -224,14 +224,15 @@ export default function GlobalSearch() {
 											>
 												<div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
 													{product.imageUrl ? (
-														<Image
+														<OptimizedImage
 															src={product.imageUrl}
 															alt={product.name}
 															fill
 															className="object-cover"
+															timeout={500}
 														/>
 													) : (
-														<div className="flex h-full items-center justify-center text-xs text-gray-400">IMG</div>
+														<div className="flex h-full items-center justify-center text-2xl">🧴</div>
 													)}
 												</div>
 												<div className="min-w-0 flex-1">

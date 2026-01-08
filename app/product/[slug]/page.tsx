@@ -5,7 +5,7 @@ import AddToCartButton from "@/components/AddToCartButton";
 import ProductActions from "@/components/ProductActions";
 import WishlistButton from "@/components/WishlistButton";
 import { notFound } from "next/navigation";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { eq, and, ne, desc } from "drizzle-orm";
 
 import Link from "next/link";
@@ -155,15 +155,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug?:
 					{/* Image Gallery */}
 					<div className="relative aspect-square w-full rounded-3xl bg-linear-to-br from-purple-100 to-pink-100 overflow-hidden shadow-xl">
 						{product.imageUrl ? (
-							<Image
+							<OptimizedImage
 								src={product.imageUrl}
 								alt={product.name}
 								fill
 								className="object-cover hover:scale-105 transition-transform duration-500"
 								priority
+								timeout={500}
 							/>
 						) : (
-							<div className="flex h-full items-center justify-center text-gray-400">No Image</div>
+							<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 						)}
 						{product.isTrending && (
 							<div className="absolute top-4 left-4 bg-linear-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
