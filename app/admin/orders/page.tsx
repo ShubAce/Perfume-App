@@ -1,5 +1,5 @@
 import { db } from "@/src/index";
-import { orders } from "@/src/db/schema";
+import { orders,addresses } from "@/src/db/schema";
 import { desc, eq, or, and, sql, count } from "drizzle-orm";
 import { validateAdminAccess } from "@/lib/admin-auth";
 import { redirect } from "next/navigation";
@@ -67,24 +67,50 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 			.groupBy(orders.status),
 	]);
 
-	const formattedOrders = ordersList.map((order) => ({
-		id: order.id,
-		userId: order.userId,
-		userName: order.user?.name || "Guest",
-		userEmail: order.user?.email || "N/A",
-		total: parseFloat(order.totalAmount),
-		status: order.status,
-		paymentId: order.stripePaymentId,
-		itemCount: order.items.length,
-		items: order.items.map((item) => ({
-			id: item.id,
-			productName: item.product?.name || "Unknown",
-			productImage: item.product?.imageUrl,
-			quantity: item.quantity,
-			price: parseFloat(item.priceAtPurchase),
-		})),
-		createdAt: order.createdAt?.toISOString(),
-	}));
+	const formattedOrders = ordersList.map((order) => {
+		// Get shipping address from the order (saved at checkout time)
+		const shippingAddr = order.shippingAddress as {
+			fullName?: string;
+			phone?: string;
+			address?: string;
+			city?: string;
+			state?: string;
+			zipCode?: string;
+			country?: string;
+		} | null;
+
+		return {
+			id: order.id,
+			userId: order.userId,
+			userName: order.user?.name || "Guest",
+			userEmail: order.user?.email || "N/A",
+			userPhone: shippingAddr?.phone || null,
+			shippingAddress: shippingAddr
+				? {
+						fullName: shippingAddr.fullName || order.user?.name || "N/A",
+						phone: shippingAddr.phone || null,
+						addressLine1: shippingAddr.address || "N/A",
+						addressLine2: null,
+						city: shippingAddr.city || "N/A",
+						state: shippingAddr.state || "N/A",
+						postalCode: shippingAddr.zipCode || "N/A",
+						country: shippingAddr.country || "N/A",
+				  }
+				: null,
+			total: parseFloat(order.totalAmount),
+			status: order.status,
+			paymentId: order.stripePaymentId,
+			itemCount: order.items.length,
+			items: order.items.map((item) => ({
+				id: item.id,
+				productName: item.product?.name || "Unknown",
+				productImage: item.product?.imageUrl,
+				quantity: item.quantity,
+				price: parseFloat(item.priceAtPurchase),
+			})),
+			createdAt: order.createdAt?.toISOString(),
+		};
+	});
 
 	const statusCountsMap = statusCounts.reduce((acc, item) => {
 		acc[item.status || "unknown"] = item.count;

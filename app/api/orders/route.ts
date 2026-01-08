@@ -14,13 +14,14 @@ export async function POST(request: Request) {
 	try {
 		const { items, shippingAddress, totalAmount } = await request.json();
 
-		// Create order
+		// Create order with shipping address
 		const [order] = await db
 			.insert(orders)
 			.values({
 				userId: parseInt(session.user.id),
 				totalAmount: totalAmount.toString(),
 				status: "pending",
+				shippingAddress: shippingAddress,
 			})
 			.returning();
 

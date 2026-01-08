@@ -24,6 +24,8 @@ import {
 	CreditCard,
 	AlertCircle,
 	Loader2,
+	Phone,
+	MapPin,
 } from "lucide-react";
 
 interface OrderItem {
@@ -34,11 +36,24 @@ interface OrderItem {
 	price: number;
 }
 
+interface Address {
+	fullName: string;
+	phone: string | null;
+	addressLine1: string;
+	addressLine2: string | null;
+	city: string;
+	state: string;
+	postalCode: string;
+	country: string;
+}
+
 interface Order {
 	id: number;
 	userId: number | null;
 	userName: string;
 	userEmail: string;
+	userPhone: string | null;
+	shippingAddress: Address | null;
 	total: number;
 	status: string | null;
 	paymentId: string | null;
@@ -496,6 +511,12 @@ export default function OrdersClient({ orders, totalCount, currentPage, pageSize
 																		<Mail className="w-4 h-4 text-gray-400" />
 																		{order.userEmail}
 																	</p>
+																	{(order.userPhone || order.shippingAddress?.phone) && (
+																		<p className="flex items-center gap-2">
+																			<Phone className="w-4 h-4 text-gray-400" />
+																			{order.shippingAddress?.phone || order.userPhone}
+																		</p>
+																	)}
 																	{order.paymentId && (
 																		<p className="flex items-center gap-2">
 																			<CreditCard className="w-4 h-4 text-gray-400" />
@@ -503,6 +524,36 @@ export default function OrdersClient({ orders, totalCount, currentPage, pageSize
 																		</p>
 																	)}
 																</div>
+															</div>
+
+															{/* Shipping Address */}
+															<div className="p-4 bg-white rounded-lg border">
+																<h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+																	<MapPin className="w-4 h-4" /> Shipping Address
+																</h4>
+																{order.shippingAddress ? (
+																	<div className="text-sm text-gray-600 space-y-1">
+																		<p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
+																		{order.shippingAddress.phone && (
+																			<p className="flex items-center gap-2">
+																				<Phone className="w-3 h-3" /> {order.shippingAddress.phone}
+																			</p>
+																		)}
+																		<p>{order.shippingAddress.addressLine1}</p>
+																		{order.shippingAddress.addressLine2 && (
+																			<p>{order.shippingAddress.addressLine2}</p>
+																		)}
+																		<p>
+																			{order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+																			{order.shippingAddress.postalCode}
+																		</p>
+																		<p>{order.shippingAddress.country}</p>
+																	</div>
+																) : (
+																	<p className="text-sm text-gray-400 italic">
+																		No shipping address on record (old order)
+																	</p>
+																)}
 															</div>
 
 															{/* Quick Actions */}

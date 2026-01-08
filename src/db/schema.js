@@ -79,6 +79,7 @@ export const orders = pgTable("orders", {
 	totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
 	status: text("status").default("pending"), // pending, paid, shipped, delivered
 	stripePaymentId: text("stripe_payment_id"),
+	shippingAddress: json("shipping_address"), // Store shipping address as JSON
 	createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -143,8 +144,11 @@ export const cartItemsRelations = relations(cartItems, ({ one }) => ({
 	}),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
 	orders: many(orders),
+	addresses: many(addresses),
+	wishlistItems: many(wishlistItems),
+	preferences: one(userPreferences),
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -317,12 +321,4 @@ export const supportTicketsRelations = relations(supportTickets, ({ one }) => ({
 		fields: [supportTickets.assignedTo],
 		references: [users.id],
 	}),
-}));
-
-// Update users relations to include new tables
-export const usersRelationsExtended = relations(users, ({ many, one }) => ({
-	orders: many(orders),
-	addresses: many(addresses),
-	wishlistItems: many(wishlistItems),
-	preferences: one(userPreferences),
 }));
