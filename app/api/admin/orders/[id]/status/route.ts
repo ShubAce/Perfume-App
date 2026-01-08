@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 			adminId: Number(session.user.id),
 			action: "order_status_update",
 			entityType: "order",
-			entityId: id,
+			entityId: orderId,
 			details: JSON.stringify({
 				previousStatus: currentOrder.status,
 				newStatus: status,

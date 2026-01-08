@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 			adminId: Number(session.user.id),
 			action: "bulk_order_status_update",
 			entityType: "order",
-			entityId: "bulk",
+			entityId: null,
 			details: JSON.stringify({
 				orderIds,
 				newStatus: status,
