@@ -3,12 +3,15 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/src/index";
-import { users } from "@/src/db/schema"; // Make sure to export 'accounts' in schema too!
+import { users, accounts } from "@/src/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-	adapter: DrizzleAdapter(db), // This automatically saves Google users to your DB
+	adapter: DrizzleAdapter(db, {
+		usersTable: users,
+		accountsTable: accounts,
+	}),
 	session: { strategy: "jwt" }, // JWT is easier for simple apps than database sessions
 	providers: [
 		// 1. Google Provider
