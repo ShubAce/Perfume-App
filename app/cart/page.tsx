@@ -33,7 +33,7 @@ export default function CartPage() {
 			setLoadingRecs(true);
 			try {
 				const productIds = items.map((i) => i.productId).join(",");
-				const response = await fetch(`/api/recommendations/cart?productIds=₹{productIds}`);
+				const response = await fetch(`/api/recommendations/cart?productIds=${productIds}`);
 				if (response.ok) {
 					const data = await response.json();
 					setRecommendations(data.products || []);
@@ -101,7 +101,7 @@ export default function CartPage() {
 											<div className="flex gap-4 sm:gap-6">
 												{/* Image */}
 												<Link
-													href={`/product/₹{item.slug}`}
+													href={`/product/${item.slug}`}
 													className="relative h-20 w-20 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-gray-100"
 												>
 													{item.imageUrl ? (
@@ -125,7 +125,7 @@ export default function CartPage() {
 																{item.brand}
 															</p>
 															<Link
-																href={`/product/₹{item.slug}`}
+																href={`/product/${item.slug}`}
 																className="block font-semibold text-gray-900 hover:text-purple-600 transition-colors truncate"
 															>
 																{item.name}
@@ -182,19 +182,20 @@ export default function CartPage() {
 										{recommendations.map((product) => (
 											<Link
 												key={product.id}
-												href={`/product/₹{product.slug}`}
+												href={`/product/${product.slug}`}
 												className="group rounded-xl bg-gray-50 p-3 hover:bg-gray-100 transition-colors"
 											>
 												<div className="relative aspect-square rounded-lg bg-gray-200 overflow-hidden mb-2">
 													{product.imageUrl ? (
-														<Image
+														<OptimizedImage
 															src={product.imageUrl}
 															alt={product.name}
 															fill
 															className="object-cover group-hover:scale-105 transition-transform"
+															timeout={500}
 														/>
 													) : (
-														<div className="flex h-full items-center justify-center text-gray-400 text-xs">No Image</div>
+														<div className="flex h-full items-center justify-center text-4xl">🧴</div>
 													)}
 												</div>
 												<p className="text-xs text-purple-600 font-medium">{product.brand}</p>
