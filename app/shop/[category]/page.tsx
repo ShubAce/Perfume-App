@@ -8,6 +8,14 @@ import Footer from "@/components/Footer";
 import { ChevronRight } from "lucide-react";
 import ShopFilters from "@/components/ShopFilters";
 
+// Revalidate shop pages every 5 minutes
+export const revalidate = 300;
+
+// Pre-generate pages for main categories
+export async function generateStaticParams() {
+	return [{ category: "all" }, { category: "men" }, { category: "women" }, { category: "unisex" }, { category: "new" }];
+}
+
 // This function tells Next.js what the params are
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
 	const { category } = await params; // unwrap the promised params

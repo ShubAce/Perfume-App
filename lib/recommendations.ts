@@ -1,6 +1,7 @@
 import { db } from "@/src/index";
 import { products } from "@/src/db/schema";
 import { eq, and, ne, or, desc, sql, ilike } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
 interface ScentNotes {
 	top: string[];
@@ -67,19 +68,23 @@ export async function getSameGender(productId: number, gender: string, limit = 4
 	return sameGender as Product[];
 }
 
-// Get trending products
-export async function getTrendingProducts(limit = 6): Promise<Product[]> {
-	const trending = await db.query.products.findMany({
-		where: eq(products.isTrending, true),
-		limit,
-		orderBy: desc(products.createdAt),
-	});
+// Get trending products (cached for 5 minutes)
+export const getTrendingProducts = unstable_cache(
+	async (limit = 6): Promise<Product[]> => {
+		const trending = await db.query.products.findMany({
+			where: eq(products.isTrending, true),
+			limit,
+			orderBy: desc(products.createdAt),
+		});
 
-	return trending as Product[];
-}
+		return trending as Product[];
+	},
+	["trending-products"],
+	{ revalidate: 300, tags: ["products"] }
+);
 
-// Get seasonal recommendations
-export async function getSeasonalPicks(season: "spring" | "summer" | "fall" | "winter", limit = 6): Promise<Product[]> {
+// Get seasonal recommendations (cached for 10 minutes per season)
+const getSeasonalPicksInternal = async (season: "spring" | "summer" | "fall" | "winter", limit = 6): Promise<Product[]> => {
 	const seasonNotes: Record<string, string[]> = {
 		spring: ["floral", "green", "citrus", "light", "fresh"],
 		summer: ["citrus", "aquatic", "fresh", "light", "marine"],
@@ -110,10 +115,12 @@ export async function getSeasonalPicks(season: "spring" | "summer" | "fall" | "w
 		});
 		return fallbackPicks as Product[];
 	}
-}
+};
 
-// Get mood-based recommendations
-export async function getMoodPicks(mood: string, limit = 6): Promise<Product[]> {
+export const getSeasonalPicks = unstable_cache(getSeasonalPicksInternal, ["seasonal-picks"], { revalidate: 600, tags: ["products"] });
+
+// Get mood-based recommendations (cached for 10 minutes per mood)
+const getMoodPicksInternal = async (mood: string, limit = 6): Promise<Product[]> => {
 	const moodNotes: Record<string, string[]> = {
 		fresh: ["citrus", "green", "aquatic", "mint", "bergamot"],
 		sensual: ["vanilla", "musk", "amber", "jasmine", "rose"],
@@ -149,7 +156,9 @@ export async function getMoodPicks(mood: string, limit = 6): Promise<Product[]> 
 		});
 		return fallbackPicks as Product[];
 	}
-}
+};
+
+export const getMoodPicks = unstable_cache(getMoodPicksInternal, ["mood-picks"], { revalidate: 600, tags: ["products"] });
 
 // Get occasion-based recommendations
 export async function getOccasionPicks(occasion: string, limit = 6): Promise<Product[]> {

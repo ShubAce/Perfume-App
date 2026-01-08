@@ -153,21 +153,28 @@ export async function GET(request: Request) {
 				});
 		}
 
-		return NextResponse.json({
-			products: searchResults,
-			suggestions,
-			pagination: {
-				total: totalCount,
-				limit,
-				offset,
-				hasMore: offset + limit < totalCount,
+		return NextResponse.json(
+			{
+				products: searchResults,
+				suggestions,
+				pagination: {
+					total: totalCount,
+					limit,
+					offset,
+					hasMore: offset + limit < totalCount,
+				},
+				filters: {
+					brands: brands.map((b) => b.brand),
+					concentrations: concentrations.map((c) => c.concentration).filter(Boolean),
+					genders: ["men", "women", "unisex"],
+				},
 			},
-			filters: {
-				brands: brands.map((b) => b.brand),
-				concentrations: concentrations.map((c) => c.concentration).filter(Boolean),
-				genders: ["men", "women", "unisex"],
-			},
-		});
+			{
+				headers: {
+					"Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+				},
+			}
+		);
 	} catch (error) {
 		console.error("Search failed:", error);
 		return NextResponse.json({ error: "Search failed" }, { status: 500 });

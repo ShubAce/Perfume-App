@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -36,6 +36,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "perfume_cart";
+const SYNC_DEBOUNCE_MS = 1000; // Debounce server sync by 1 second
 
 export function CartProvider({ children }: { children: ReactNode }) {
 	const [items, setItems] = useState<CartItem[]>([]);
@@ -43,10 +44,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 	const { data: session, status } = useSession();
 	const isInitialized = useRef(false);
 	const previousAuthState = useRef<string | null>(null);
+	const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-	// Calculate derived values
-	const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-	const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+	// Memoize derived values to prevent recalculation
+	const itemCount = useMemo(() => items.reduce((acc, item) => acc + item.quantity, 0), [items]);
+	const subtotal = useMemo(() => items.reduce((acc, item) => acc + item.price * item.quantity, 0), [items]);
 
 	// Load cart from localStorage
 	const loadFromLocalStorage = useCallback((): CartItem[] => {
@@ -84,8 +86,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
 		return [];
 	}, []);
 
-	// Sync cart to server
+	// Debounced sync to server to reduce API calls
+	const debouncedSyncToServer = useCallback((cartItems: CartItem[]) => {
+		if (syncTimeoutRef.current) {
+			clearTimeout(syncTimeoutRef.current);
+		}
+		syncTimeoutRef.current = setTimeout(async () => {
+			try {
+				await fetch("/api/cart/sync", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ items: cartItems }),
+				});
+			} catch (error) {
+				console.error("Failed to sync to server:", error);
+			}
+		}, SYNC_DEBOUNCE_MS);
+	}, []);
+
+	// Immediate sync to server (for critical operations)
 	const syncToServer = useCallback(async (cartItems: CartItem[]) => {
+		if (syncTimeoutRef.current) {
+			clearTimeout(syncTimeoutRef.current);
+		}
 		try {
 			await fetch("/api/cart/sync", {
 				method: "POST",
@@ -253,12 +276,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 			setItems(updatedItems);
 
-			// Sync to server if logged in
+			// Use debounced sync for quantity updates (frequent operation)
 			if (status === "authenticated") {
-				await syncToServer(updatedItems);
+				debouncedSyncToServer(updatedItems);
 			}
 		},
-		[items, status, syncToServer, removeItem]
+		[items, status, debouncedSyncToServer, removeItem]
 	);
 
 	// Clear cart
@@ -269,6 +292,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 			syncToServer([]);
 		}
 	}, [status, syncToServer]);
+
+	// Cleanup debounce timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (syncTimeoutRef.current) {
+				clearTimeout(syncTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	return (
 		<CartContext.Provider

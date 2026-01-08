@@ -9,6 +9,9 @@ import { RecommendationSection, SeasonalBanner, MoodCollection } from "@/compone
 import { getTrendingProducts, getSeasonalPicks, getMoodPicks } from "@/lib/recommendations";
 import { Sparkles, Gift, Zap, Star } from "lucide-react";
 
+// Revalidate home page data every 5 minutes for fresh content
+export const revalidate = 300;
+
 // Helper to get current season
 function getCurrentSeason(): "spring" | "summer" | "fall" | "winter" {
 	const month = new Date().getMonth();

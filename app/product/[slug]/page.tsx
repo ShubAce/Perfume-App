@@ -12,6 +12,18 @@ import Link from "next/link";
 import RelatedCarousel from "@/components/RelatedCarousel";
 import Footer from "@/components/Footer";
 
+// Revalidate product pages every 10 minutes
+export const revalidate = 600;
+
+// Generate static params for popular products (SSG)
+export async function generateStaticParams() {
+	const popularProducts = await db.query.products.findMany({
+		where: eq(products.isTrending, true),
+		limit: 20,
+	});
+	return popularProducts.map((product) => ({ slug: product.slug }));
+}
+
 interface ScentNotes {
 	top: string[];
 	middle: string[];
