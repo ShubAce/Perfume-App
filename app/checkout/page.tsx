@@ -64,7 +64,7 @@ export default function CheckoutPage() {
 				const { orderId } = await response.json();
 				clearCart();
 				toast.success("Order placed successfully!");
-				router.push(`/orders/${orderId}/success`);
+				router.push(`/orders/success?orderId=${orderId}`);
 			} else {
 				throw new Error("Failed to place order");
 			}
