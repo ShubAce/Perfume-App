@@ -290,6 +290,7 @@ export default function ShopFilters({ products }: ShopFiltersProps) {
 							{/* Product Image */}
 							<Link
 								href={`/product/${product.slug}`}
+								prefetch={false}
 								className="block relative aspect-square overflow-hidden bg-gray-100"
 							>
 								{product.imageUrl ? (
@@ -316,7 +317,10 @@ export default function ShopFilters({ products }: ShopFiltersProps) {
 							{/* Product Info */}
 							<div className="p-4">
 								<p className="text-xs font-medium text-purple-600 uppercase tracking-wide mb-1">{product.brand}</p>
-								<Link href={`/product/${product.slug}`}>
+								<Link
+									href={`/product/${product.slug}`}
+									prefetch={false}
+								>
 									<h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors mb-2 min-h-[2.5rem]">
 										{product.name}
 									</h3>

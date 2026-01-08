@@ -23,6 +23,7 @@ function CategoryCard({ title, image, link, subtitle }: { title: string; image: 
 	return (
 		<Link
 			href={link}
+			prefetch={false}
 			className="group relative block h-[400px] overflow-hidden rounded-2xl bg-gray-100"
 		>
 			<OptimizedImage
@@ -114,12 +115,14 @@ export default async function EnhancedHome() {
 						<div className="mt-10 flex flex-wrap gap-4">
 							<Link
 								href="/shop/all"
+								prefetch={false}
 								className="rounded-full bg-white px-8 py-4 text-lg font-bold text-black transition-all hover:scale-105 hover:shadow-lg"
 							>
 								Shop Now
 							</Link>
 							<Link
 								href="/quiz"
+								prefetch={false}
 								className="rounded-full bg-white/10 backdrop-blur-sm border border-white/30 px-8 py-4 text-lg font-medium text-white transition-all hover:bg-white/20"
 							>
 								✨ Take the Quiz
@@ -197,6 +200,7 @@ export default async function EnhancedHome() {
 						<div className="mt-12 text-center">
 							<Link
 								href="/quiz"
+								prefetch={false}
 								className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-medium text-white shadow-lg hover:shadow-xl transition-shadow"
 							>
 								<Sparkles className="h-5 w-5" />
@@ -278,6 +282,7 @@ export default async function EnhancedHome() {
 							</p>
 							<Link
 								href="/quiz?gift=true"
+								prefetch={false}
 								className="mt-8 inline-block rounded-full bg-white px-8 py-4 font-bold text-purple-600 shadow-lg hover:shadow-xl transition-shadow"
 							>
 								Find the Perfect Gift

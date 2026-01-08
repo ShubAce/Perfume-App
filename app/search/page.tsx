@@ -394,6 +394,7 @@ function SearchResultsContent() {
 									<Link
 										key={product.id}
 										href={`/product/${product.slug}`}
+										prefetch={false}
 										className="group rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-lg"
 									>
 										<div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
@@ -458,6 +459,7 @@ function SearchResultsContent() {
 								<Link
 									key={item.productId}
 									href={`/product/${item.slug}`}
+									prefetch={false}
 									className="rounded-xl bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
 								>
 									<div className="aspect-square rounded-lg bg-gray-100 mb-3" />

@@ -96,7 +96,6 @@ export default function Navbar() {
 						</Link>
 					</div>
 
-
 					{/* Right Icons */}
 					<div className="flex items-center gap-2">
 						{/* Global Search */}
@@ -105,6 +104,7 @@ export default function Navbar() {
 						{/* Cart */}
 						<Link
 							href={ROUTES.cart}
+							prefetch={false}
 							className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors"
 						>
 							<ShoppingBag className="h-5 w-5" />
@@ -123,6 +123,7 @@ export default function Navbar() {
 						) : isLoggedIn ? (
 							<Link
 								href={ROUTES.profile}
+								prefetch={false}
 								className="p-2 text-gray-700 hover:text-purple-600 transition-colors"
 							>
 								{session?.user?.image ? (
@@ -138,6 +139,7 @@ export default function Navbar() {
 						) : (
 							<Link
 								href={ROUTES.login}
+								prefetch={false}
 								className="hidden sm:inline-flex items-center gap-2 rounded-full bg-linear-to-r from-purple-600 to-pink-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:shadow-lg transition-shadow"
 							>
 								<LogIn className="h-4 w-4" />
@@ -185,6 +187,7 @@ export default function Navbar() {
 								>
 									<Link
 										href={href}
+										prefetch={false}
 										onClick={() => setOpen(false)}
 										className={`flex items-center justify-between text-lg ${
 											highlight ? "text-purple-600 font-semibold" : "text-gray-800"

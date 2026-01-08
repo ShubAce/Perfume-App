@@ -27,6 +27,7 @@ const FooterSection = ({ title, links }: { title: string; links: { label: string
 					<li key={link.label}>
 						<Link
 							href={link.href}
+							prefetch={false}
 							className="text-gray-600 hover:text-purple-600 transition-colors duration-200"
 						>
 							{link.label}
@@ -50,6 +51,7 @@ export default function Footer() {
 					<div className="md:col-span-2 lg:col-span-1">
 						<Link
 							href="/"
+							prefetch={false}
 							className="inline-block text-2xl font-bold tracking-tight mb-4"
 						>
 							<span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">SCENTOS</span>

@@ -23,6 +23,7 @@ export function ProductCard({ product, showBadge = false, compact = false }: Pro
 	return (
 		<Link
 			href={`/product/${product.slug}`}
+			prefetch={false}
 			className={`group block rounded-xl bg-white shadow-sm transition-all hover:shadow-lg ${compact ? "p-3" : "p-4"}`}
 		>
 			<div className={`relative overflow-hidden rounded-lg bg-gray-100 ${compact ? "aspect-square" : "aspect-square"}`}>
@@ -84,6 +85,7 @@ export function RecommendationSection({ title, subtitle, products, viewAllLink, 
 				{viewAllLink && (
 					<Link
 						href={viewAllLink}
+						prefetch={false}
 						className="text-sm font-semibold text-purple-600 hover:text-purple-700"
 					>
 						View all →
@@ -136,6 +138,7 @@ export function MoodCollection({ moods }: MoodCollectionProps) {
 				<Link
 					key={mood.name}
 					href={`/search?mood=${encodeURIComponent(mood.name.toLowerCase())}`}
+					prefetch={false}
 					className={`group relative overflow-hidden rounded-2xl p-6 text-center transition-transform hover:scale-105 ${mood.color}`}
 				>
 					<div className="text-4xl mb-2">{mood.icon}</div>
@@ -183,6 +186,7 @@ export function SeasonalBanner({ currentSeason }: SeasonalPicksProps) {
 	return (
 		<Link
 			href={`/search?season=${currentSeason}`}
+			prefetch={false}
 			className={`block rounded-2xl bg-linear-to-r ${season.gradient} p-8 transition-transform hover:scale-[1.02]`}
 		>
 			<div className="flex items-center gap-4">

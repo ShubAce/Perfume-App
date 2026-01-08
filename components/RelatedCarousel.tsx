@@ -89,7 +89,12 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 							<div className="flex items-start justify-between">
 								<div>
 									<h3 className="text-sm font-medium text-gray-900">
-										<Link href={`/product/${p.slug}`}>{p.name}</Link>
+										<Link
+											href={`/product/${p.slug}`}
+											prefetch={false}
+										>
+											{p.name}
+										</Link>
 									</h3>
 									<p className="mt-1 text-xs text-gray-500">{p.brand}</p>
 								</div>
@@ -119,6 +124,7 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 						>
 							<Link
 								href={`/product/${p.slug}`}
+								prefetch={false}
 								tabIndex={-1}
 								className="block"
 							>
@@ -139,7 +145,12 @@ export default function RelatedCarousel({ products }: { products: Product[] }) {
 							<div className="flex items-start justify-between">
 								<div>
 									<h3 className="text-sm font-medium text-gray-900">
-										<Link href={`/product/${p.slug}`}>{p.name}</Link>
+										<Link
+											href={`/product/${p.slug}`}
+											prefetch={false}
+										>
+											{p.name}
+										</Link>
 									</h3>
 									<p className="mt-1 text-xs text-gray-500">{p.brand}</p>
 								</div>
